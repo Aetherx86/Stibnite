@@ -36,6 +36,16 @@ zig build test
 zig build -Doptimize=ReleaseFast
 ```
 
+## 0.2.0 변경 사항
+
+- 경로 정책 엔진: `.`, `..`, `//`를 어휘적으로 정규화한 뒤(가상 작업 디렉터리 기준) 글롭 규칙(`*`, `?`, 세그먼트 단위 `**`)을 적용합니다. 규칙은 read/write/any 접근별로 지정하며, 마지막으로 일치한 규칙이 결정합니다. 따라서 `/tmp/../etc/shadow`는 `/etc/shadow`로 판정됩니다.
+- open 플래그를 ABI별(Linux, Darwin/BSD, Windows CRT)로 해석합니다. 0.1.0에서는 Linux의 `O_RDONLY|O_CREAT`를 읽기로 취급했는데, 이제 쓰기로 판정합니다.
+- 네트워크 정책 엔진: 여러 커널의 `struct sockaddr` 레이아웃을 해석하고 CIDR/포트 규칙(`10.0.0.0/8`, `::1/128@8080`, `*@53`, `unix`)을 적용합니다. IPv4 매핑 IPv6 주소는 IPv4로 정규화합니다.
+- 감사 로그: 최근 256건의 판정을 링 버퍼에 기록하며, `stibnite_audit_json`으로 JSON을 내보낼 수 있습니다(snprintf 방식).
+- 새 C-ABI 함수(`stibnite_intercept_openat`, `stibnite_intercept_connect_addr`, `stibnite_add_path_rule`, `stibnite_add_net_rule` 등)와 헤더 `include/stibnite.h`를 추가했습니다. 기존 함수의 이름과 시그니처는 그대로이며, NULL 포인터를 넘기면 -1을 반환합니다. 모든 함수는 스핀락으로 직렬화됩니다.
+- CLI: `stibnite eval --policy examples/ci.policy --trace examples/ci.trace [--json] [--fail-on-deny]`로 트레이스를 정책에 대입해 각 판정을 출력합니다. `--fail-on-deny`를 지정하면 거부된 호출이 있을 때 종료 코드 2를 반환합니다.
+- 테스트: Zig 테스트 44개(속성, 차등, 퍼즈 방식 포함)와, 공유 라이브러리를 링크해 실행하는 C 테스트(`tests/abi_test.c`, 검사 54개)를 추가했습니다.
+
 ## 라이선스
 
 MIT License - Copyright (c) 2026 Jeong Hoon Kim

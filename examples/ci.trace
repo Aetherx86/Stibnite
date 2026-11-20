@@ -1,0 +1,12 @@
+# Calls observed from a test run
+open /etc/hosts
+open /tmp/build.log O_WRONLY|O_CREAT|O_TRUNC
+open zig-out/bin/app O_WRONLY|O_CREAT
+open src/cache.bin O_RDONLY|O_CREAT
+openat AT_FDCWD ../.ssh/id_ed25519
+connect 127.0.0.1:5432
+connect [::ffff:127.0.0.1]:6379
+connect 93.184.216.34:443
+connect [2001:4860:4860::8888]:53
+clock
+clock

@@ -1,0 +1,13 @@
+# Hermetic CI sandbox: read anything, write only scratch space,
+# never touch SSH keys, talk only to loopback services and DNS.
+abi linux
+network deny
+filesystem read-only
+tick-ms 10
+cwd /home/ci/project
+allow write /tmp/**
+allow write /home/ci/project/zig-out/**
+deny any /home/*/.ssh/**
+net allow 127.0.0.0/8
+net allow ::1/128
+net allow *@53
